@@ -82,7 +82,8 @@ class FiLMedNet(nn.Module):
         self.print_verbose_every = print_verbose_every
 
         # Initialize helper variables
-        self.stem_use_coords = (stem_stride == 1) and (self.use_coords_freq > 0)
+        # self.stem_use_coords = (stem_stride == 1) and (self.use_coords_freq > 0) # seems a bug in the original code
+        self.stem_use_coords = (stem_stride == [1]) and (self.use_coords_freq > 0)
         self.condition_pattern = condition_pattern
         if len(condition_pattern) == 0:
             self.condition_pattern = []
@@ -105,7 +106,8 @@ class FiLMedNet(nn.Module):
           num_layers=stem_num_layers, with_batchnorm=stem_batchnorm,
           kernel_size=stem_kernel_size, stride=stem_stride, padding=stem_padding,
           subsample_layers=stem_subsample_layers)
-        tmp = self.stem(Variable(torch.zeros([1, feature_dim[0], feature_dim[1], feature_dim[2]])))
+        # tmp = self.stem(Variable(torch.zeros([1, feature_dim[0], feature_dim[1], feature_dim[2]]))) # seems a bug in the original code
+        tmp = self.stem(Variable(torch.zeros([1, stem_feature_dim, feature_dim[1], feature_dim[2]])))
         module_H = tmp.size(2)
         module_W = tmp.size(3)
 
@@ -171,7 +173,7 @@ class FiLMedNet(nn.Module):
 
         # Propagate up image features CNN
         stem_batch_coords = None
-        batch_coods = None
+        batch_coords = None
         if self.use_coords_freq > 0:
             stem_batch_coords = self.stem_coords.unsqueeze(0).expand(
                 torch.Size((x.size(0), *self.stem_coords.size())))
